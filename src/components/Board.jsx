@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors,closestCorners } from '@dnd-kit/core'
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import Column from './Column'
 import { ClipboardList, Loader, CheckCircle, Plus, RotateCcw, Search } from 'lucide-react'
 import TaskCard from './TaskCard'
@@ -9,12 +9,18 @@ const initialTasks =[
 ]
 
 function Board({ darkMode }) {
-    const [tasks, setTasks] = useState(initialTasks)
+    const [tasks, setTasks] = useState(() => {
+        const saved = localStorage.getItem('kanban-tasks')
+        return saved ? JSON.parse(saved) : initialTasks
+    })
     const [inputText, setInputText] = useState('')
     const [priority, setPriority] = useState('medium')
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTask, setActiveTask] = useState(null)
-
+    useEffect(() => {
+        localStorage.setItem('kanban-tasks', JSON.stringify(tasks))
+    }, [tasks])
+    
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance:3}
         }))
